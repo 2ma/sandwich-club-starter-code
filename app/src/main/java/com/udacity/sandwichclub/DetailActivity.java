@@ -4,16 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
 
+import java.util.List;
+
 public class DetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
+
+    private TextView alsoKnownAsTv;
+    private TextView descriptionTv;
+    private TextView originTv;
+    private TextView ingredientsTv;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +30,10 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         ImageView ingredientsIv = findViewById(R.id.image_iv);
+        alsoKnownAsTv = findViewById(R.id.also_known_tv);
+        descriptionTv = findViewById(R.id.description_tv);
+        originTv = findViewById(R.id.origin_tv);
+        ingredientsTv = findViewById(R.id.ingredients_tv);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -43,10 +56,10 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
 
-        populateUI();
+        populateUI(sandwich);
         Picasso.with(this)
-                .load(sandwich.getImage())
-                .into(ingredientsIv);
+            .load(sandwich.getImage())
+            .into(ingredientsIv);
 
         setTitle(sandwich.getMainName());
     }
@@ -56,7 +69,39 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 
-    private void populateUI() {
+    private void populateUI(Sandwich sandwich) {
+        List<String> alsoKnown = sandwich.getAlsoKnownAs();
+        if (!alsoKnown.isEmpty()) {
+            StringBuilder alsoBuilder = new StringBuilder();
+            int len = alsoKnown.size();
+            for (int i = 0; i < len; i++) {
+                alsoBuilder.append(alsoKnown.get(i));
+                if (i != len - 1) {
+                    alsoBuilder.append(", ");
+                }
+            }
+            alsoKnownAsTv.setText(alsoBuilder.toString());
+        }
 
+        if (sandwich.getDescription() != null) {
+            descriptionTv.setText(sandwich.getDescription());
+        }
+
+        if (sandwich.getPlaceOfOrigin() != null) {
+            originTv.setText(sandwich.getPlaceOfOrigin());
+        }
+
+        List<String> ingredients = sandwich.getIngredients();
+        if (!ingredients.isEmpty()) {
+            StringBuilder ingredientsBuilder = new StringBuilder();
+            int len = ingredients.size();
+            for (int i = 0; i < len; i++) {
+                ingredientsBuilder.append(ingredients.get(i));
+                if (i != len - 1) {
+                    ingredientsBuilder.append(System.getProperty("line.separator"));
+                }
+            }
+            ingredientsTv.setText(ingredientsBuilder.toString());
+        }
     }
 }
